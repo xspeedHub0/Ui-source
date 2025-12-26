@@ -1699,26 +1699,55 @@ Library.floatingIcons = {}
 Library.screenGui = nil
 
 function Library:CreateFloatingIcon(funcName, displayName, callback, initialState)
+    -- Si ya existe el ScreenGui, usar el existente
     if not self.screenGui then
         self.screenGui = Instance.new("ScreenGui")
         self.screenGui.Name = "FloatingIcons"
         self.screenGui.ResetOnSpawn = false
         self.screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        self.screenGui.Parent = CoreGui
-    end
-    
-    -- Cargar posición guardada si existe
-    local savedPosition = nil
-    local saveKey = "ZL_ICON_" .. funcName .. "_POS"
-    
-    if readfile and isfile and isfile(saveKey .. ".json") then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile(saveKey .. ".json"))
-        end)
-        if success and data then
-            savedPosition = UDim2.new(data.X.Scale, data.X.Offset, data.Y.Scale, data.Y.Offset)
+        
+        -- Intentar varias ubicaciones posibles
+        if gethui then
+            self.screenGui.Parent = gethui()
+        elseif syn and syn.protect_gui then
+            syn.protect_gui(self.screenGui)
+            self.screenGui.Parent = CoreGui
+        else
+            self.screenGui.Parent = CoreGui
         end
     end
+    
+    -- VERIFICAR SI EL ICONO YA EXISTE
+    if self.floatingIcons[funcName] and self.floatingIcons[funcName].Main and self.floatingIcons[funcName].Main.Parent then
+        -- Solo actualizar el estado si es necesario
+        if initialState ~= nil then
+            self.floatingIcons[funcName].SetState(initialState)
+        end
+        return self.floatingIcons[funcName]
+    end
+    
+    -- Cargar posición guardada
+    local savedPos = nil
+    local function loadIconPosition()
+        if readfile and isfile and isfile("ZL_PVP_HUB_SETTINGS.json") then
+            local success, configData = pcall(function()
+                return HttpService:JSONDecode(readfile("ZL_PVP_HUB_SETTINGS.json"))
+            end)
+            
+            if success and configData and configData.iconPositions and configData.iconPositions[funcName] then
+                local posData = configData.iconPositions[funcName]
+                return UDim2.new(
+                    posData.X.Scale or 0, 
+                    posData.X.Offset or 0, 
+                    posData.Y.Scale or 0, 
+                    posData.Y.Offset or 0
+                )
+            end
+        end
+        return nil
+    end
+    
+    savedPos = loadIconPosition()
     
     -- Posiciones predefinidas (solo si no hay posición guardada)
     local gridPositions = {
@@ -1736,11 +1765,11 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
         AutoSteal = {x = 640, y = 240}
     }
     
-    -- Usar posición guardada o posición predefinida
+    -- Determinar posición inicial
     local posX, posY
-    if savedPosition then
-        posX = savedPosition.X.Offset
-        posY = savedPosition.Y.Offset
+    if savedPos then
+        posX = savedPos.X.Offset
+        posY = savedPos.Y.Offset
     else
         local pos = gridPositions[funcName] or {x = 100, y = 100}
         posX = pos.x
@@ -1771,9 +1800,46 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
     icon.TextWrapped = true
     icon.Draggable = true
     
-    -- Sistema para guardar posición cuando se arrastra
+    -- Sistema para guardar posición
     local lastPosition = icon.Position
     local isDragging = false
+    
+    local function saveIconPosition()
+        -- Cargar configuración existente
+        local configData = {}
+        if readfile and isfile and isfile("ZL_PVP_HUB_SETTINGS.json") then
+            local success, data = pcall(function()
+                return HttpService:JSONDecode(readfile("ZL_PVP_HUB_SETTINGS.json"))
+            end)
+            if success then
+                configData = data
+            end
+        end
+        
+        -- Asegurar que existe la sección iconPositions
+        if not configData.iconPositions then
+            configData.iconPositions = {}
+        end
+        
+        -- Guardar posición actual
+        configData.iconPositions[funcName] = {
+            X = {Scale = icon.Position.X.Scale, Offset = icon.Position.X.Offset},
+            Y = {Scale = icon.Position.Y.Scale, Offset = icon.Position.Y.Offset}
+        }
+        
+        -- Guardar archivo
+        local success, err = pcall(function()
+            if writefile then
+                writefile("ZL_PVP_HUB_SETTINGS.json", HttpService:JSONEncode(configData))
+                return true
+            end
+            return false
+        end)
+        
+        if not success then
+            warn("[Iconos] No se pudo guardar posición:", err)
+        end
+    end
     
     icon.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -1788,21 +1854,7 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
             
             -- Solo guardar si realmente se movió
             if icon.Position ~= lastPosition then
-                -- Guardar posición
-                if writefile then
-                    local posData = {
-                        X = {Scale = icon.Position.X.Scale, Offset = icon.Position.X.Offset},
-                        Y = {Scale = icon.Position.Y.Scale, Offset = icon.Position.Y.Offset}
-                    }
-                    
-                    local success, error = pcall(function()
-                        writefile(saveKey .. ".json", HttpService:JSONEncode(posData))
-                    end)
-                    
-                    if not success then
-                        warn("No se pudo guardar posición del icono:", error)
-                    end
-                end
+                saveIconPosition()
             end
         end
     end)
@@ -1811,18 +1863,7 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
             isDragging = false
-            
-            -- Guardar posición
-            if writefile then
-                local posData = {
-                    X = {Scale = icon.Position.X.Scale, Offset = icon.Position.X.Offset},
-                    Y = {Scale = icon.Position.Y.Scale, Offset = icon.Position.Y.Offset}
-                }
-                
-                pcall(function()
-                    writefile(saveKey .. ".json", HttpService:JSONEncode(posData))
-                end)
-            end
+            saveIconPosition()
         end
     end)
     
@@ -1892,12 +1933,6 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
         end,
         GetState = function()
             return iconState
-        end,
-        GetPosition = function()
-            return icon.Position
-        end,
-        SetPosition = function(newPos)
-            icon.Position = newPos
         end
     }
     

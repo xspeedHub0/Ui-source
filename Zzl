@@ -1727,27 +1727,22 @@ function Library:CreateFloatingIcon(funcName, displayName, callback, initialStat
     end
     
     -- Cargar posición guardada
-    local savedPos = nil
-    local function loadIconPosition()
-        if readfile and isfile and isfile("ZL_PVP_HUB_SETTINGS.json") then
-            local success, configData = pcall(function()
-                return HttpService:JSONDecode(readfile("ZL_PVP_HUB_SETTINGS.json"))
-            end)
-            
-            if success and configData and configData.iconPositions and configData.iconPositions[funcName] then
-                local posData = configData.iconPositions[funcName]
-                return UDim2.new(
-                    posData.X.Scale or 0, 
-                    posData.X.Offset or 0, 
-                    posData.Y.Scale or 0, 
-                    posData.Y.Offset or 0
-                )
-            end
+    local posX, posY
+local savedPositionLoaded = false
+
+-- Intentar cargar desde configuración
+pcall(function()
+    if readfile and isfile and isfile("ZL_PVP_HUB_SETTINGS.json") then
+        local configData = HttpService:JSONDecode(readfile("ZL_PVP_HUB_SETTINGS.json"))
+        if configData and configData.iconPositions and configData.iconPositions[funcName] then
+            local posData = configData.iconPositions[funcName]
+            posX = posData.X.Offset or 0
+            posY = posData.Y.Offset or 0
+            savedPositionLoaded = true
+            print("📍 Posición cargada para " .. funcName .. ": " .. posX .. ", " .. posY)
         end
-        return nil
     end
-    
-    savedPos = loadIconPosition()
+end)
     
     -- Posiciones predefinidas (solo si no hay posición guardada)
     local gridPositions = {

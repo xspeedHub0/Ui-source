@@ -1698,7 +1698,7 @@ end
 Library.floatingIcons = {}
 Library.screenGui = nil
 
-function Library:CreateFloatingIcon(funcName, displayName, callback)
+function Library:CreateFloatingIcon(funcName, displayName, callback, initialState)
     if not self.screenGui then
         self.screenGui = Instance.new("ScreenGui")
         self.screenGui.Name = "FloatingIcons"
@@ -1707,13 +1707,26 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
         self.screenGui.Parent = CoreGui
     end
     
-    -- Posiciones predefinidas
+    -- Cargar posición guardada si existe
+    local savedPosition = nil
+    local saveKey = "ZL_ICON_" .. funcName .. "_POS"
+    
+    if readfile and isfile and isfile(saveKey .. ".json") then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(saveKey .. ".json"))
+        end)
+        if success and data then
+            savedPosition = UDim2.new(data.X.Scale, data.X.Offset, data.Y.Scale, data.Y.Offset)
+        end
+    end
+    
+    -- Posiciones predefinidas (solo si no hay posición guardada)
     local gridPositions = {
         Aimbot = {x = 720, y = 120},
         SpinBot = {x = 720, y = 160},
         AutoHit = {x = 720, y = 200},
         GrabActivator = {x = 720, y = 240},
-        SpeedBoost = {x = 3220, y = 280},
+        SpeedBoost = {x = 820, y = 280},
         AntiKnockback = {x = 720, y = 320},
         InfiniteJump = {x = 920, y = 360},
         AntiRagdoll = {x = 920, y = 400},
@@ -1723,7 +1736,17 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
         AutoSteal = {x = 640, y = 240}
     }
     
-    local pos = gridPositions[funcName] or {x = math.random(100, 400), y = math.random(100, 400)}
+    -- Usar posición guardada o posición predefinida
+    local posX, posY
+    if savedPosition then
+        posX = savedPosition.X.Offset
+        posY = savedPosition.Y.Offset
+    else
+        local pos = gridPositions[funcName] or {x = 100, y = 100}
+        posX = pos.x
+        posY = pos.y
+    end
+    
     local displayText = displayName or funcName:sub(1, 3)
     
     -- Eliminar icono existente
@@ -1738,7 +1761,7 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
     icon.Parent = self.screenGui
     icon.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     icon.BorderSizePixel = 0
-    icon.Position = UDim2.new(0, pos.x, 0, pos.y)
+    icon.Position = UDim2.new(0, posX, 0, posY)
     icon.Size = UDim2.new(0, 80, 0, 32)
     icon.AutoButtonColor = false
     icon.Text = displayText
@@ -1747,6 +1770,61 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
     icon.TextSize = 12
     icon.TextWrapped = true
     icon.Draggable = true
+    
+    -- Sistema para guardar posición cuando se arrastra
+    local lastPosition = icon.Position
+    local isDragging = false
+    
+    icon.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+            lastPosition = icon.Position
+        end
+    end)
+    
+    icon.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+            
+            -- Solo guardar si realmente se movió
+            if icon.Position ~= lastPosition then
+                -- Guardar posición
+                if writefile then
+                    local posData = {
+                        X = {Scale = icon.Position.X.Scale, Offset = icon.Position.X.Offset},
+                        Y = {Scale = icon.Position.Y.Scale, Offset = icon.Position.Y.Offset}
+                    }
+                    
+                    local success, error = pcall(function()
+                        writefile(saveKey .. ".json", HttpService:JSONEncode(posData))
+                    end)
+                    
+                    if not success then
+                        warn("No se pudo guardar posición del icono:", error)
+                    end
+                end
+            end
+        end
+    end)
+    
+    -- También guardar cuando se suelte el mouse (por si acaso)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
+            isDragging = false
+            
+            -- Guardar posición
+            if writefile then
+                local posData = {
+                    X = {Scale = icon.Position.X.Scale, Offset = icon.Position.X.Offset},
+                    Y = {Scale = icon.Position.Y.Scale, Offset = icon.Position.Y.Offset}
+                }
+                
+                pcall(function()
+                    writefile(saveKey .. ".json", HttpService:JSONEncode(posData))
+                end)
+            end
+        end
+    end)
     
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 6)
@@ -1768,7 +1846,7 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
     dotCorner.CornerRadius = UDim.new(1, 0)
     dotCorner.Parent = dot
     
-    local iconState = true -- Siempre empieza activo porque se crea al activar la función
+    local iconState = initialState or true
     
     local function updateIconVisual()
         if iconState then
@@ -1794,14 +1872,13 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
         end
     end
 
-    -- Click simple para activar/desactivar la función SIN eliminar el icono
+    -- Click simple para activar/desactivar la función
     icon.MouseButton1Click:Connect(function()
         iconState = not iconState
         updateIconVisual()
         if callback then
             callback(iconState)
         end
-        -- NO eliminamos el icono aquí, solo cambiamos el estado
     end)
     
     self.floatingIcons[funcName] = {
@@ -1815,6 +1892,12 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
         end,
         GetState = function()
             return iconState
+        end,
+        GetPosition = function()
+            return icon.Position
+        end,
+        SetPosition = function(newPos)
+            icon.Position = newPos
         end
     }
     

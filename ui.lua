@@ -28,7 +28,7 @@ function Library:Window(title)
     Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Main.BorderSizePixel = 0
     Main.Position = UDim2.new(0.377, 0, 0.368, 0)
-    Main.Size = UDim2.new(0, 470, 0, 283)
+    Main.Size = UDim2.new(0, 440, 0, 260) -- TAMAÑO FE LA UI
     Main.Active = true
     Main.Selectable = true
     
@@ -93,7 +93,7 @@ function Library:Window(title)
     Top.Parent = Main
     Top.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
     Top.BorderSizePixel = 0
-    Top.Size = UDim2.new(1, 0, 0, 34)
+    Top.Size = UDim2.new(1, 0, 0, 28) -- TAMAÑO DE LA UI
     
     local TopCorner = Instance.new("UICorner")
     TopCorner.CornerRadius = UDim.new(0, 6)
@@ -125,9 +125,9 @@ function Library:Window(title)
     Logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Logo.BackgroundTransparency = 1.000
     Logo.Position = UDim2.new(0, 4, 0.5, 0)
-    Logo.Size = UDim2.new(0, 26, 0, 30)
-    Logo.Image = "http://www.roblox.com/asset/?id=110728705873113"
-    Logo.ImageColor3 = Color3.fromRGB(232, 17, 85)
+    Logo.Size = UDim2.new(0, 30, 0, 34)
+    Logo.Image = "http://www.roblox.com/asset/?id=74144583069274"
+    Logo.ImageColor3 = Color3.fromRGB(255, 255, 255) -- icono de la ui
     
     -- Minimize Button (using minus icon)
     local Minimize = Instance.new("ImageButton")
@@ -147,14 +147,15 @@ function Library:Window(title)
     MinimizedIcon.Name = "MinimizedIcon"
     MinimizedIcon.Parent = ui
     MinimizedIcon.AnchorPoint = Vector2.new(1, 1)
-    MinimizedIcon.BackgroundColor3 = Color3.fromRGB(232, 17, 85)
+    MinimizedIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    MinimizedIcon.BackgroundTransparency = 1.000
     MinimizedIcon.BackgroundTransparency = 0
     MinimizedIcon.BorderSizePixel = 0
     MinimizedIcon.Position = UDim2.new(1, -20, 1, -20)
-    MinimizedIcon.Size = UDim2.new(0, 40, 0, 40)
+    MinimizedIcon.Size = UDim2.new(0, 38, 0, 38) -- 40, 0 40
     MinimizedIcon.Visible = false
     MinimizedIcon.ZIndex = 10
-    MinimizedIcon.Image = "http://www.roblox.com/asset/?id=110728705873113"
+    MinimizedIcon.Image = "http://www.roblox.com/asset/?id=135568978507194"
     
     local MinimizedCorner = Instance.new("UICorner")
     MinimizedCorner.CornerRadius = UDim.new(0, 8)
@@ -254,7 +255,7 @@ end)
     GameName.Size = UDim2.new(0, 165, 0, 22)
     GameName.Font = Enum.Font.Gotham
     GameName.Text = title or "Game Name"
-    GameName.TextColor3 = Color3.fromRGB(232, 17, 85)
+    GameName.TextColor3 = Color3.fromRGB(255, 215, 0)
     GameName.TextSize = 14.000
     GameName.TextXAlignment = Enum.TextXAlignment.Left
     
@@ -265,7 +266,7 @@ end)
     Tabs.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
     Tabs.BorderSizePixel = 0
     Tabs.Position = UDim2.new(0, 0, 0, 35)
-    Tabs.Size = UDim2.new(0, 122, 1, -35)
+    Tabs.Size = UDim2.new(0, 110, 1, -28)
     
     local TabsCorner = Instance.new("UICorner")
     TabsCorner.CornerRadius = UDim.new(0, 6)
@@ -278,7 +279,7 @@ end)
     TabsCover.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
     TabsCover.BorderSizePixel = 0
     TabsCover.Position = UDim2.new(1, 0, 0.5, 0)
-    TabsCover.Size = UDim2.new(0, 5, 1, 0)
+    TabsCover.Size = UDim2.new(0, 5, 1, 0) -- faltante
     
     local TabsContainer = Instance.new("Frame")
     TabsContainer.Name = "TabsContainer"
@@ -296,7 +297,7 @@ end)
     
     local TabsPadding = Instance.new("UIPadding")
     TabsPadding.Parent = TabsContainer
-    TabsPadding.PaddingTop = UDim.new(0, 5)
+    TabsPadding.PaddingTop = UDim.new(0, 3)
     
     -- Pages Container
     local Pages = Instance.new("Frame")
@@ -304,8 +305,8 @@ end)
     Pages.Parent = Main
     Pages.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Pages.BorderSizePixel = 0
-    Pages.Position = UDim2.new(0, 130, 0, 42)
-    Pages.Size = UDim2.new(1, -138, 1, -50)
+    Pages.Position = UDim2.new(0, 118, 0, 35)
+    Pages.Size = UDim2.new(1, -126, 1, -43)
     
     local PagesCorner = Instance.new("UICorner")
     PagesCorner.CornerRadius = UDim.new(0, 6)
@@ -362,7 +363,7 @@ end)
         local TabButton = Instance.new("TextButton")
         TabButton.Name = "TabButton"
         TabButton.Parent = TabsContainer
-        TabButton.BackgroundColor3 = Color3.fromRGB(232, 17, 85)
+        TabButton.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
         TabButton.BackgroundTransparency = 1
         TabButton.Size = UDim2.new(1, -12, 0, 30)
         TabButton.AutoButtonColor = false
@@ -392,7 +393,7 @@ end)
             Icon.Position = UDim2.new(0, 5, 0.5, -10)
             Icon.Size = UDim2.new(0, 20, 0, 20)
             Icon.Image = icon
-            Icon.ImageColor3 = Color3.fromRGB(232, 17, 85)
+            Icon.ImageColor3 = Color3.fromRGB(255, 215, 0)
         end
         
         -- Add text label
@@ -478,7 +479,7 @@ end)
             local Button = Instance.new("TextButton")
             Button.Name = "Button"
             Button.Parent = Page
-            Button.BackgroundColor3 = Color3.fromRGB(134, 10, 49)
+            Button.BackgroundColor3 = Color3.fromRGB(218, 165, 32)
             Button.BorderSizePixel = 0
             Button.Size = UDim2.new(1, -6, 0, 34)
             Button.AutoButtonColor = false
@@ -496,7 +497,7 @@ end)
             end)
             
             Button.MouseLeave:Connect(function()
-                TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(134, 10, 49)}):Play()
+                TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(218, 165, 32)}):Play()
             end)
             
             Button.MouseButton1Click:Connect(function()
@@ -586,11 +587,11 @@ function Elements:Toggle(text, default, callback)
         if toggled then
             -- Estado ACTIVADO
             TweenService:Create(SwitchContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- 0, 170, 255 xd
+                BackgroundColor3 = Color3.fromRGB(255, 215, 0) -- 0, 170, 255 xd
             }):Play()
             
             TweenService:Create(SwitchContainerStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Color = Color3.fromRGB(136, 8, 8)
+                Color = Color3.fromRGB(218, 165, 32)
             }):Play()
             
             TweenService:Create(SwitchCircle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
@@ -783,7 +784,7 @@ end
             local SliderDrag = Instance.new("Frame")
             SliderDrag.Name = "SliderDrag"
             SliderDrag.Parent = SliderClick
-            SliderDrag.BackgroundColor3 = Color3.fromRGB(188, 14, 69)
+            SliderDrag.BackgroundColor3 = Color3.fromRGB(255, 193, 7) -- sliders / donde se sube las configs de novel
             SliderDrag.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
             
             local SliderDragCorner = Instance.new("UICorner")
@@ -1712,13 +1713,14 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
         SpinBot = {x = 720, y = 160},
         AutoHit = {x = 720, y = 200},
         GrabActivator = {x = 720, y = 240},
-        SpeedBoost = {x = 720, y = 280},
+        SpeedBoost = {x = 3220, y = 280},
         AntiKnockback = {x = 720, y = 320},
         InfiniteJump = {x = 920, y = 360},
         AntiRagdoll = {x = 920, y = 400},
         AntiKnockbackV2 = {x = 920, y = 440},
         ShiftLock = {x = 720, y = 480},
-        AutoSteal = {x = 720, y = 510}
+        AutoShiftLock = {x = 640, y = 120},
+        AutoSteal = {x = 640, y = 240}
     }
     
     local pos = gridPositions[funcName] or {x = math.random(100, 400), y = math.random(100, 400)}
@@ -1774,7 +1776,7 @@ function Library:CreateFloatingIcon(funcName, displayName, callback)
                 BackgroundColor3 = Color3.fromRGB(134, 10, 49)
             }):Play()
             TweenService:Create(stroke, TweenInfo.new(0.2), {
-                Color = Color3.fromRGB(232, 17, 85)
+                Color = Color3.fromRGB(134, 10, 49)
             }):Play()
             TweenService:Create(dot, TweenInfo.new(0.2), {
                 BackgroundColor3 = Color3.fromRGB(0, 255, 0)

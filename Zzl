@@ -1757,7 +1757,9 @@ end)
         ShiftLock = {x = 720, y = 480},
         AutoShiftLock = {x = 640, y = 120},
         AutoSteal = {x = 640, y = 240},
-        MedusaSpy = {x = 900000, y = 9999},
+        MedusaSpy = {x = 900000, y = 999},
+        XRay = {x = 900000, y = 9999},
+        FPSBoost = {x = 900000, y = 9999},
     }
     
     -- Determinar posición inicial
